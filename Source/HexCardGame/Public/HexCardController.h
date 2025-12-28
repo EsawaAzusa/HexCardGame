@@ -17,10 +17,18 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void OnRep_PlayerState() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UDataTable* CardLibrary;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UVisualManager* VisualManager;
-
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	AHexCardState* HexCardState;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	ACameraActor* CameraActor;
 	
 };

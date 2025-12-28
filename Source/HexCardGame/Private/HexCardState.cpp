@@ -26,7 +26,7 @@ void AHexCardState::BeginPlay()
 	for (int idx = 0; idx < 5; ++idx)
 	{
 		FCardState NewCard;
-		NewCard.CardName = FName(TEXT("TestCard_%d"), idx);
+		NewCard.CardName = FName(*FString::Printf(TEXT("Card_00%d"), idx+1));
 		NewCard.CardInstanceID = idx;
 		NewCard.OwnerPlayerID = 0;               // 玩家0
 		NewCard.CardLocation.Zone = ECardZone::Deck;

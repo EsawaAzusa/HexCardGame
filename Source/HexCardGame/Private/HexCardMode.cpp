@@ -11,7 +11,6 @@ void AHexCardMode::PostLogin(APlayerController* NewPlayer)
 	if (APlayerState* PlayerState = NewPlayer -> GetPlayerState<APlayerState>())
 	{
 		PlayerState -> SetPlayerId(NextPlayerID);
-		UE_LOG(LogTemp, Log, TEXT("Assign PlayerId %d"), NextPlayerID);
 		NextPlayerID++;
 	}
 }

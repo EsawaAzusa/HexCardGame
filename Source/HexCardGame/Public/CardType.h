@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HexCardModel.h"
 #include "CardType.generated.h"
 
 /*
@@ -111,4 +112,16 @@ struct HEXCARDGAME_API FCardStateChangeEvent
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<ECardBuff> RemovedBuffs;
+};
+
+USTRUCT(BlueprintType)
+struct FHexCardLibrary : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName CardName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<AHexCardModel> CardModelClass;
 };

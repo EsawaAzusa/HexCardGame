@@ -14,7 +14,7 @@ class HEXCARDGAME_API UVisualManager : public UActorComponent
 public:	
 
 	UVisualManager();
-
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<FCardStateChangeEvent> FrozenCardStateChangeEvents;
 
@@ -56,5 +56,11 @@ public:
 
 	UFUNCTION()
 	void OnTurnChanged(int NewTurnPlayerID);
+
+	UFUNCTION()
+	void DemoDrawCard(const FCardStateChangeEvent& Event);
+
+	UFUNCTION()
+	void DemoPlayCard(const FCardStateChangeEvent& Event);
 	
 };

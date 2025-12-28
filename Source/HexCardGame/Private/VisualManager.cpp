@@ -1,5 +1,7 @@
 #include "VisualManager.h"
 
+#include "HexCardController.h"
+
 UVisualManager::UVisualManager()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -60,28 +62,14 @@ void UVisualManager::HandleEvent(const FCardStateChangeEvent& Event)
 
 void UVisualManager::HandleLocationEvent(const FCardStateChangeEvent& Event)
 {
-	//********************************************测试用*********************************************
 	if (!IsNetMode(NM_Client)) return;
 	if (!GetOwner() || !Cast<APlayerController>(GetOwner())->IsLocalController()) return;
-	
-	FString EventInfo = FString::Printf(
-	 TEXT("Event SeqID: %d | CardID: %d | UpdateHint: %s | StartZone: %s | EndZone: %s"),
-	 Event.StateChangeEventSequenceID,
-	 Event.CardInstanceID,
-	 *UEnum::GetValueAsString(Event.UpdateHint),
-	 *UEnum::GetValueAsString(Event.StartCardLocation.Zone),
-	 *UEnum::GetValueAsString(Event.EndCardLocation.Zone)
-	);
 
-	// 打印到屏幕上，持续50秒
-	if (GEngine)
+	if(Event.StartCardLocation.Zone == ECardZone::Deck && Event.EndCardLocation.Zone == ECardZone::Hand)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, EventInfo);
+		DemoDrawCard(Event);
+		return;
 	}
-
-	// 打到输出日志
-	UE_LOG(LogTemp, Log, TEXT("%s"), *EventInfo);
-	EventFinishCallback(Event.StateChangeEventSequenceID);
 	//************************************************************************************************
 }
 
@@ -119,3 +107,40 @@ void UVisualManager::OnTurnChanged(int NewTurnPlayerID)
 	return;
 }
 
+void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
+{
+	//使用卡牌ID获取CardName
+	FName CardName = NAME_None;
+	for (const FCardState& idx : Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates)
+	{
+		if (idx.CardInstanceID == Event.CardInstanceID)
+		{
+			CardName = idx.CardName;
+			break;
+		}
+	}
+	
+	//获取Card模型结构体
+	const FHexCardLibrary* Card =Cast<AHexCardController>(GetOwner()) ->  CardLibrary -> FindRow<FHexCardLibrary>(CardName, TEXT("Invalid Row Name"));
+	if (!Card || Card -> CardModelClass.IsNull()) return;
+
+	//解软引用
+	UClass* CardModel = Card -> CardModelClass.LoadSynchronous();
+	if (!CardModel) return;
+
+	//生成位置（仅供测试）
+	FVector Location = FVector(-700.f, 0.f, 1000.f);
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(Location);
+	SpawnTransform.SetRotation(FQuat::Identity);
+	SpawnTransform.SetScale3D(FVector::OneVector);
+	
+	//生成！
+	GetWorld() -> SpawnActor<AHexCardModel>(CardModel, SpawnTransform);
+	EventFinishCallback(Event.StateChangeEventSequenceID);
+}
+
+void UVisualManager::DemoPlayCard(const FCardStateChangeEvent& Event)
+{
+	
+}
