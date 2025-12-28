@@ -7,6 +7,83 @@ UVisualManager::UVisualManager()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+void UVisualManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Locate();
+}
+
+void UVisualManager::Locate()
+{
+	TArray<AHexCardModel*> Hand_P0;
+	TArray<AHexCardModel*> Hand_P1;
+	TArray<AHexCardModel*> Board;
+	//分选模型，组建数组
+	for (AHexCardModel* idx : HexCardModels)
+	{
+		FCardState Owner;
+		for (const FCardState& CardState : Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates)
+		{
+			if (CardState.CardInstanceID == idx -> CardInstanceID)
+			{
+				Owner = CardState;
+				break;
+			}
+		}
+		switch (Owner.CardLocation.Zone)
+		{
+		case ECardZone::Hand:
+			if (Owner.OwnerPlayerID == 0)
+				Hand_P0.Add(idx);
+			else
+				Hand_P1.Add(idx);
+			break;
+		case ECardZone::Board:
+			Board.Add(idx);
+			break;
+		default:
+			break;
+		}	
+	}
+	//开始更新
+	UpdateHand_P0(Hand_P0);
+	UpdateHand_P1(Hand_P0);
+	UpdateBoard(Board);
+}
+
+void UVisualManager::UpdateHand_P0(TArray<AHexCardModel*> Hand)
+{
+	//临时美术设置
+	const FVector Start(-1000.f, -700.f, 1000.f);
+	const FVector End  (-1000.f,  700.f, 1000.f);
+
+	//魔术方法，好孩子不要学
+	Hand.Insert(nullptr, 0);
+	Hand.Add(nullptr);
+	const int N = Hand.Num();
+	
+	for (int idx = 0; idx < N; ++idx)
+	{
+		const float Alpha = static_cast<float>(idx) / static_cast<float>(N - 1);
+		const FVector Pos = FMath::Lerp(Start, End, Alpha);
+		if (Hand[idx])
+		{
+			Hand[idx] -> TargetLocation = Pos;
+			Hand[idx] -> MoveMode = EMoveMode::Interp;
+		}
+	}
+}
+
+void UVisualManager::UpdateHand_P1(TArray<AHexCardModel*> Hand)
+{
+	
+}
+
+void UVisualManager::UpdateBoard(TArray<AHexCardModel*> Board)
+{
+	
+}
+
 void UVisualManager::Initialize(AHexCardState* InGameState)
 {
 	return;
@@ -128,15 +205,17 @@ void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 	UClass* CardModel = Card -> CardModelClass.LoadSynchronous();
 	if (!CardModel) return;
 
-	//生成位置（仅供测试）
-	FVector Location = FVector(-700.f, 0.f, 1000.f);
+	//生成位置（仅供测试，假设为P0控制）
+	FVector Location = FVector(-1000.f, 800.f, 1000.f);
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(Location);
 	SpawnTransform.SetRotation(FQuat::Identity);
 	SpawnTransform.SetScale3D(FVector::OneVector);
 	
-	//生成！
-	GetWorld() -> SpawnActor<AHexCardModel>(CardModel, SpawnTransform);
+	//生成Model，在Models数组中集中统一管理
+	AHexCardModel* NewCardModel = GetWorld() -> SpawnActor<AHexCardModel>(CardModel, SpawnTransform);
+	NewCardModel -> Initialize(Event.CardInstanceID);
+	HexCardModels.Add(NewCardModel);
 	EventFinishCallback(Event.StateChangeEventSequenceID);
 }
 

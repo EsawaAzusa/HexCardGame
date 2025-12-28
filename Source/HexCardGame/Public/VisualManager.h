@@ -14,12 +14,31 @@ class HEXCARDGAME_API UVisualManager : public UActorComponent
 public:	
 
 	UVisualManager();
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	//**********************更新表现*****************************
+	UFUNCTION()
+	void Locate();
+	
+	UFUNCTION()
+	void UpdateHand_P0(TArray<AHexCardModel*> Hand);
+
+	UFUNCTION()
+	void UpdateHand_P1(TArray<AHexCardModel*> Hand);
+
+	UFUNCTION()
+	void UpdateBoard(TArray<AHexCardModel*> Board);
+	//**********************更新表现*****************************
 	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<FCardStateChangeEvent> FrozenCardStateChangeEvents;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<FCardStateChangeEvent> UnhandledCardStateChangeEvents;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TArray<AHexCardModel*> HexCardModels;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 HandledEventSequenceID = 0; //初始时事件ID为0
