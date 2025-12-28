@@ -76,7 +76,25 @@ void UVisualManager::UpdateHand_P0(TArray<AHexCardModel*> Hand)
 
 void UVisualManager::UpdateHand_P1(TArray<AHexCardModel*> Hand)
 {
+	//临时美术设置
+	const FVector Start(1000.f, 700.f, 1000.f);
+	const FVector End  (1000.f,  -700.f, 1000.f);
+
+	//魔术方法，好孩子不要学
+	Hand.Insert(nullptr, 0);
+	Hand.Add(nullptr);
+	const int N = Hand.Num();
 	
+	for (int idx = 0; idx < N; ++idx)
+	{
+		const float Alpha = static_cast<float>(idx) / static_cast<float>(N - 1);
+		const FVector Pos = FMath::Lerp(Start, End, Alpha);
+		if (Hand[idx])
+		{
+			Hand[idx] -> TargetLocation = Pos;
+			Hand[idx] -> MoveMode = EMoveMode::Interp;
+		}
+	}
 }
 
 void UVisualManager::UpdateBoard(TArray<AHexCardModel*> Board)
