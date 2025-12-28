@@ -1,0 +1,106 @@
+#include "HexCardState.h"
+#include "..\Public\EffectInterpreter.h"
+
+void UEffectInterpreter::PushEffect(const FAnyEffect& AddedEffect)
+{
+	EffectQueue.Push(AddedEffect);
+}
+
+void UEffectInterpreter::ProcessEffectQueue()
+{
+	while (!EffectQueue.IsEmpty()) //循环检测LIFO是否为空
+	{
+		const FAnyEffect HandleEffect = EffectQueue.Pop();
+		InterpreterEffect(HandleEffect);
+	}
+}
+
+void UEffectInterpreter::InterpreterEffect(const FAnyEffect& HandleEffect)
+{
+	switch (HandleEffect.EffectType)
+	{
+	case EEffectType::Draw:
+		{
+			const UDrawPayload* Payload = Cast<UDrawPayload>(HandleEffect.Payload);
+			ExecuteDraw(HandleEffect, Payload);
+			break;
+		}
+	case EEffectType::Play:
+		{
+			const UPlayPayload* Payload = Cast<UPlayPayload>(HandleEffect.Payload);
+			//Play
+			break;
+		}
+	
+	case EEffectType::Attack:
+		{
+			const UAttackPayload* Payload = Cast<UAttackPayload>(HandleEffect.Payload);
+			//Attack
+			break;
+		}
+		
+	case EEffectType::ChangeTurn:
+		{
+			const UChangeTurnPayload* Payload = Cast<UChangeTurnPayload>(HandleEffect.Payload);
+			ExecuteChangeTurn(HandleEffect, Payload);
+			break;
+		}
+		
+	default:
+		{
+			//Error, damn!
+		}
+	}
+}
+
+void UEffectInterpreter::ExecuteDraw(const FAnyEffect& HandleEffect, const UDrawPayload* Payload)
+{
+	if (!OwnerHexCardState) return; //检测CardState和payload是否存在
+	if (!Payload) return;
+
+	TArray<int> PlayerIDs = HandleEffect.TargetPlayerIDs;
+	int32 DrawCount = Payload -> Count;
+
+	// 为每个触发效果的玩家找出count数量的牌
+	for (const int PlayerID : PlayerIDs)
+	{
+		for (int i = 0; i < DrawCount; ++i)
+		{
+			FCardState* CardToDraw = nullptr;
+			for (FCardState& Card : OwnerHexCardState -> CardStates)
+			{
+				if (Card.OwnerPlayerID == PlayerID && Card.CardLocation.Zone == ECardZone::Deck)
+				{
+					CardToDraw = &Card;
+					break;
+				}
+			}
+
+			if (!CardToDraw) continue; //不存在就跳出
+
+			// 调整CardState状态
+			CardToDraw->CardLocation.Zone = ECardZone::Hand;
+
+			// 生成相应的的ChangeEvent
+			FCardStateChangeEvent Event;
+			Event.CardInstanceID = CardToDraw -> CardInstanceID;
+			Event.UpdateHint = ECardUpdate::Location;
+			Event.StartCardLocation.Zone = ECardZone::Deck;
+			Event.EndCardLocation.Zone = ECardZone::Hand;
+
+			// 转发Event
+			Event.StateChangeEventSequenceID = ++OwnerHexCardState -> GlobalStateChangeSequenceID;
+			OwnerHexCardState -> CardStateChangeEventDispatch(Event);
+		}
+	}
+}
+
+void UEffectInterpreter::ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload)
+{
+	if (!OwnerHexCardState) return;
+	
+	OwnerHexCardState -> CurrentTurnPlayerID = HandleEffect.SourcePlayerID ? 0 : 1 ;
+	OwnerHexCardState -> TurnNumber++;
+}
+
+
