@@ -39,7 +39,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<AHexCardModel*> HexCardModels;
-
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	int32 HandledEventSequenceID = 0; //初始时事件ID为0
 

@@ -46,10 +46,10 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void RequestDrawCard(int PlayerID);
 
+	UFUNCTION()
+	static FCardState GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez);
+	
 	//***************************************回合模块***********************************************
-	/*
-	 回合切换也是一种Effect，
-	 */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated)
 	int TurnNumber = 0;
 
@@ -59,7 +59,11 @@ public:
 	UFUNCTION()
 	void OnRep_CurrentTurnPlayerID();
 	
+	//***************************************操作模块***********************************************	
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void RequestChangeTurn(int PlayerID);
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void RequestPlayCard(int playerID, int CardInstanceID, int HexQ, int HexR );
 	
 };

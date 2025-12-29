@@ -21,15 +21,7 @@ void UVisualManager::Locate()
 	//分选模型，组建数组
 	for (AHexCardModel* idx : HexCardModels)
 	{
-		FCardState Owner;
-		for (const FCardState& CardState : Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates)
-		{
-			if (CardState.CardInstanceID == idx -> CardInstanceID)
-			{
-				Owner = CardState;
-				break;
-			}
-		}
+		const FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
 		switch (Owner.CardLocation.Zone)
 		{
 		case ECardZone::Hand:
@@ -47,7 +39,7 @@ void UVisualManager::Locate()
 	}
 	//开始更新
 	UpdateHand_P0(Hand_P0);
-	UpdateHand_P1(Hand_P0);
+	UpdateHand_P1(Hand_P1);
 	UpdateBoard(Board);
 }
 
@@ -78,7 +70,7 @@ void UVisualManager::UpdateHand_P1(TArray<AHexCardModel*> Hand)
 {
 	//临时美术设置
 	const FVector Start(1000.f, 700.f, 1000.f);
-	const FVector End  (1000.f,  -700.f, 1000.f);
+	const FVector End  (1000.f,  -700.f, 1100.f);
 
 	//魔术方法，好孩子不要学
 	Hand.Insert(nullptr, 0);
@@ -205,15 +197,8 @@ void UVisualManager::OnTurnChanged(int NewTurnPlayerID)
 void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 {
 	//使用卡牌ID获取CardName
-	FName CardName = NAME_None;
-	for (const FCardState& idx : Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates)
-	{
-		if (idx.CardInstanceID == Event.CardInstanceID)
-		{
-			CardName = idx.CardName;
-			break;
-		}
-	}
+	const FCardState CardState = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(Event.CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+	const FName CardName = CardState.CardName;
 	
 	//获取Card模型结构体
 	const FHexCardLibrary* Card =Cast<AHexCardController>(GetOwner()) ->  CardLibrary -> FindRow<FHexCardLibrary>(CardName, TEXT("Invalid Row Name"));

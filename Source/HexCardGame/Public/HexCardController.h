@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "VisualManager.h"
 #include "HexCardState.h"
+#include "HexGrid.h"
 #include "HexCardController.generated.h"
 
 UCLASS()
@@ -30,5 +31,21 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	ACameraActor* CameraActor;
+
+	//**************************输入操作*****************************
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	AHexCardModel* CardModel;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	AHexGrid* HexModel;
 	
+	UFUNCTION(BlueprintCallable)
+	void SelectCard();
+
+	UFUNCTION(BlueprintCallable)
+	void SelectHex();
+
+	UFUNCTION(Server, Reliable)
+	void RequestPlayCard(int CardInstanceID, int HexQ, int HexR);
 };

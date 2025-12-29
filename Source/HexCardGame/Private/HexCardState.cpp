@@ -57,6 +57,18 @@ void AHexCardState::RequestDrawCard_Implementation(int PlayerID)
 	EffectInterpreter -> ProcessEffectQueue();	//生成并推送
 }
 
+FCardState AHexCardState::GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez)
+{
+	for (FCardState idx : CardStatez)
+	{
+		if (idx.CardInstanceID == CardInstanceID)
+		{
+			return idx;
+		}
+	};
+	return FCardState();
+}
+
 void AHexCardState::OnRep_CurrentTurnPlayerID()
 {
 	//在Visual层表现进入下一个回合
@@ -70,7 +82,6 @@ void AHexCardState::OnRep_CurrentTurnPlayerID()
 void AHexCardState::RequestChangeTurn_Implementation(int PlayerID)
 {
 	if (!EffectInterpreter) return; //没有解释器
-
 	if (CurrentTurnPlayerID != PlayerID) return; //非法回合结束请求
 
 	FAnyEffect Effect;
@@ -82,6 +93,27 @@ void AHexCardState::RequestChangeTurn_Implementation(int PlayerID)
 	EffectInterpreter -> PushEffect(Effect);
 	EffectInterpreter -> ProcessEffectQueue();	//生成并推送
 	
+}
+
+void AHexCardState::RequestPlayCard_Implementation(int playerID, int CardInstanceID, int HexQ, int HexR)
+{
+	if (!EffectInterpreter) return;
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			10.0f,
+			FColor::Green,
+			FString::Printf(
+				TEXT("RequestPlayCard received | CardID=%d | HexQ=%d | HexR=%d | Mode = %s"),
+				CardInstanceID,
+				HexQ,
+				HexR,
+				GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
+			)
+		);
+	}
 }
 
 void AHexCardState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

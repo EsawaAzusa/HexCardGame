@@ -34,3 +34,40 @@ void AHexCardController::OnRep_PlayerState()
 	}
 	Super::OnRep_PlayerState();	//旋转第二个玩家的本地摄像机
 }
+
+void AHexCardController::SelectCard()
+{
+	FHitResult HitResult;
+	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult))
+	{
+		if(AHexCardModel* Model = Cast<AHexCardModel>(HitResult.GetActor()))
+		{
+			CardModel = Model;
+		}
+	}
+}
+
+void AHexCardController::SelectHex()
+{
+	if (!CardModel) return; //无卡牌就返回
+
+	FHitResult HitResult;
+	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult))
+	{
+		if(AHexGrid* Model = Cast<AHexGrid>(HitResult.GetActor()))
+		{
+			HexModel = Model;
+		}
+	}
+	if (CardModel && HexModel)
+	{
+		RequestPlayCard(CardModel -> CardInstanceID, HexModel -> HexQ, HexModel -> HexR);
+		CardModel = nullptr;
+		HexModel = nullptr;
+	}
+}
+
+void AHexCardController::RequestPlayCard_Implementation( int CardInstanceID, int HexQ, int HexR)
+{
+	HexCardState -> RequestPlayCard(PlayerState->GetPlayerId(), CardInstanceID, HexQ, HexR);
+}
