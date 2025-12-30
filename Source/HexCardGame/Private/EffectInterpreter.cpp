@@ -4,21 +4,42 @@
 void UEffectInterpreter::PushEffect(const FAnyEffect& AddedEffect)
 {
 	EffectQueue.Push(AddedEffect);
+	if (!bIsProcessing)
+	{
+		ProcessEffectQueue();	//生成并推送
+	}
 }
 
 void UEffectInterpreter::ProcessEffectQueue()
 {
 	while (!EffectQueue.IsEmpty()) //循环检测LIFO是否为空
 	{
+		bIsProcessing = true;
 		const FAnyEffect HandleEffect = EffectQueue.Pop();
 		InterpreterEffect(HandleEffect);
 	}
+	bIsProcessing = false;
 }
 
 void UEffectInterpreter::InterpreterEffect(const FAnyEffect& HandleEffect)
 {
 	switch (HandleEffect.EffectType)
 	{
+		
+	case EEffectType::ChangeTurn:
+		{
+			const UChangeTurnPayload* Payload = Cast<UChangeTurnPayload>(HandleEffect.Payload);
+			ExecuteChangeTurn(HandleEffect, Payload);
+			break;
+		}
+
+	case EEffectType::ChangePhase:
+		{
+			const UChangePhasePayload* Payload = Cast<UChangePhasePayload>(HandleEffect.Payload);
+			ExecuteChangePhase(HandleEffect, Payload);
+			break;
+		}
+		
 	case EEffectType::Draw:
 		{
 			const UDrawPayload* Payload = Cast<UDrawPayload>(HandleEffect.Payload);
@@ -36,13 +57,6 @@ void UEffectInterpreter::InterpreterEffect(const FAnyEffect& HandleEffect)
 		{
 			const UAttackPayload* Payload = Cast<UAttackPayload>(HandleEffect.Payload);
 			//Attack
-			break;
-		}
-		
-	case EEffectType::ChangeTurn:
-		{
-			const UChangeTurnPayload* Payload = Cast<UChangeTurnPayload>(HandleEffect.Payload);
-			ExecuteChangeTurn(HandleEffect, Payload);
 			break;
 		}
 		
@@ -103,4 +117,9 @@ void UEffectInterpreter::ExecuteChangeTurn(const FAnyEffect& HandleEffect, const
 	OwnerHexCardState -> TurnNumber++;
 }
 
-
+void UEffectInterpreter::ExecuteChangePhase(const FAnyEffect& HandleEffect, const UChangePhasePayload* Payload)
+{
+	if (!OwnerHexCardState) return;
+	
+	OwnerHexCardState -> GamePhase = Payload -> GamePhase;
+}

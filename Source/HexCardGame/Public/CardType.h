@@ -14,6 +14,15 @@ FCardStateChangeEvent ： 从卡牌状态改变中提取的改变事件，相关
  */
 
 UENUM(BlueprintType)
+enum class EGamePhase : uint8
+{
+	PreGameAwait,
+	GameStart,
+	InGame,
+	GameEnd
+};
+
+UENUM(BlueprintType)
 enum class ECardZone : uint8
 {
 	Deck,
@@ -48,34 +57,34 @@ struct HEXCARDGAME_API FCardState
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	FName CardName = TEXT("NULL");
 	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	int CardInstanceID = -1;
 	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	int OwnerPlayerID = -1;
 	
 	//***************Attributes******************
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	int BasePowerA = 1;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	int BasePowerB = 1;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	int BasePowerC = 1;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	int BaseRange = 1;
 
 	//****************Location*******************
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	FCardLocation CardLocation;
+	UPROPERTY(EditAnywhere)
+	FCardLocation CardLocation = FCardLocation();
 
 	//*****************Buff*********************
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	TArray<ECardBuff> CardBuffs = {};
 };
 

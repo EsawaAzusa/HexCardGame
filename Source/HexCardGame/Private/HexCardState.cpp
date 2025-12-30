@@ -1,4 +1,7 @@
 #include "HexCardState.h"
+#include "HexCardController.h"
+#include "Algo/RandomShuffle.h"
+#include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 /*
@@ -22,17 +25,6 @@ void AHexCardState::BeginPlay()
 	check(EffectInterpreter);
 	EffectInterpreter -> Initialize(this);
 	
-	//************************测试用添加五张牌****************************
-	for (int idx = 0; idx < 5; ++idx)
-	{
-		FCardState NewCard;
-		NewCard.CardName = FName(*FString::Printf(TEXT("Card_00%d"), idx+1));
-		NewCard.CardInstanceID = idx;
-		NewCard.OwnerPlayerID = 0;               // 玩家0
-		NewCard.CardLocation.Zone = ECardZone::Deck;
-		CardStates.Add(NewCard);
-	}
-	//*****************************测试用**********************************
 }
 
 void AHexCardState::CardStateChangeEventDispatch_Implementation(const FCardStateChangeEvent& Event)
@@ -54,7 +46,6 @@ void AHexCardState::RequestDrawCard_Implementation(int PlayerID)
 	Cast<UDrawPayload>(Effect.Payload) -> Count = 1; //设置payload内参数
 	
 	EffectInterpreter -> PushEffect(Effect);
-	EffectInterpreter -> ProcessEffectQueue();	//生成并推送
 }
 
 FCardState AHexCardState::GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez)
@@ -79,6 +70,68 @@ void AHexCardState::OnRep_CurrentTurnPlayerID()
 	}
 }
 
+void AHexCardState::OnRep_CurrentGamePhase()
+{
+	//在Visual层表现进入下一个阶段
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+			FString::Printf(TEXT(" %s  Start."),*UEnum::GetValueAsString(GamePhase)));
+	}
+}
+
+void AHexCardState::AdvancedGamePhase()
+{
+	switch (GamePhase)
+	{
+	case EGamePhase::PreGameAwait:
+		{
+			if (PlayerArray.Num() == 2)	//登录人数达到2
+			{
+				for (int idx = 0; idx < CardStates.Num(); ++idx)	//遍历编号
+				{
+					CardStates[idx].CardInstanceID = idx;
+				}
+				Algo::RandomShuffle(CardStates);
+				Algo::RandomShuffle(CardStates);	//打乱两次
+				
+				if (!EffectInterpreter) return; //没有解释器
+	
+				FAnyEffect Effect;
+				Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
+				Effect.EffectType = EEffectType::ChangePhase; //效果类型
+				Effect.Payload = NewObject<UChangePhasePayload>(EffectInterpreter);
+				Cast<UChangePhasePayload>(Effect.Payload) -> GamePhase = EGamePhase::GameStart; //设置payload内参数
+	
+				EffectInterpreter -> PushEffect(Effect);
+			}
+			break;
+		}
+	case EGamePhase::GameStart:
+		{
+			break;
+		}
+	case EGamePhase::InGame:
+		{
+			break;
+		}
+	case EGamePhase::GameEnd:
+		{
+			break;
+		}
+	}
+}
+
+void AHexCardState::AppendDeck(AHexCardController* OwnerPlayer)
+{
+	TArray<FCardState> NewDeck = OwnerPlayer -> OwningDeck;
+	for (FCardState& idx : NewDeck)
+	{
+		idx.OwnerPlayerID = OwnerPlayer -> PlayerState -> GetPlayerId();
+	}
+	CardStates.Append(NewDeck);
+}
+
 void AHexCardState::RequestChangeTurn_Implementation(int PlayerID)
 {
 	if (!EffectInterpreter) return; //没有解释器
@@ -91,8 +144,6 @@ void AHexCardState::RequestChangeTurn_Implementation(int PlayerID)
 	Effect.Payload = NewObject<UChangeTurnPayload>(EffectInterpreter);
 	
 	EffectInterpreter -> PushEffect(Effect);
-	EffectInterpreter -> ProcessEffectQueue();	//生成并推送
-	
 }
 
 void AHexCardState::RequestPlayCard_Implementation(int playerID, int CardInstanceID, int HexQ, int HexR)

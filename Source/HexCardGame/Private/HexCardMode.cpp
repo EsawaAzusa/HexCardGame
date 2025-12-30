@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerState.h"
 #include "HexCardMode.h"
 
+#include "HexCardController.h"
+
 void AHexCardMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
@@ -12,5 +14,7 @@ void AHexCardMode::PostLogin(APlayerController* NewPlayer)
 	{
 		PlayerState -> SetPlayerId(NextPlayerID);
 		NextPlayerID++;
+		Cast<AHexCardState>(GameState) ->AppendDeck(Cast<AHexCardController>(NewPlayer));
+		Cast<AHexCardState>(GameState) -> AdvancedGamePhase();
 	}
 }

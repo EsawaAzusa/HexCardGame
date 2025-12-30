@@ -17,10 +17,11 @@ FAnyEffect ：效果结构体，包括效果唯一ID（用于重播），效果�
 UENUM(BlueprintType)
 enum class EEffectType : uint8
 {
+	ChangeTurn,
+	ChangePhase,
 	Draw,
 	Play,
-	Attack,
-	ChangeTurn
+	Attack
 };
 
 // ************** Virtual Payload ****************
@@ -30,6 +31,25 @@ class HEXCARDGAME_API UEffectPayload : public UObject
 	GENERATED_BODY()
 public:
 	virtual ~UEffectPayload() override {};
+};
+
+// ************ ChangeTurn Payload *************
+UCLASS()
+class UChangeTurnPayload : public UEffectPayload
+{
+	GENERATED_BODY()
+};
+
+// ************ ChangePhase Payload *************
+UCLASS()
+class UChangePhasePayload : public UEffectPayload
+{
+	GENERATED_BODY()
+
+public:
+
+	EGamePhase GamePhase;	//新游戏阶段
+	
 };
 
 // ***************** Draw Payload ****************
@@ -54,13 +74,6 @@ class UPlayPayload : public UEffectPayload
 // ***************** Attack Payload **************
 UCLASS()
 class UAttackPayload : public UEffectPayload
-{
-	GENERATED_BODY()
-};
-
-// ************ ChangeTurn Payload *************
-UCLASS()
-class UChangeTurnPayload : public UEffectPayload
 {
 	GENERATED_BODY()
 };
@@ -111,6 +124,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<FAnyEffect> EffectQueue;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	bool bIsProcessing = false;
+
 	UFUNCTION()
 	void PushEffect(const FAnyEffect& AddedEffect);
 	
@@ -125,5 +141,8 @@ public:
 
 	UFUNCTION()
 	void ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload);
+
+	UFUNCTION()
+	void ExecuteChangePhase(const FAnyEffect& HandleEffect, const UChangePhasePayload* Payload);
 	
 };

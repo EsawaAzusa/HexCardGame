@@ -3,10 +3,15 @@
 #include "Camera/CameraActor.h"
 #include "GameFramework/PlayerState.h"
 
+AHexCardController::AHexCardController()
+{
+	PlayerCameraManager = nullptr;
+}
+
 void AHexCardController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	//设置HexCardState
 	AGameStateBase* GameState = GetWorld()->GetGameState();
 	if (!GameState) return;
@@ -17,22 +22,23 @@ void AHexCardController::BeginPlay()
 	VisualManager->RegisterComponent();
 	VisualManager->Initialize(HexCardState);
 	HexCardState->OnCardStateChangeEvent.AddUObject(VisualManager, &UVisualManager::OnCardStateChangeEvent);
-
-	//设置场景摄像机
-	if (AActor* CA  = UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass()))
-	{
-		CameraActor = Cast<ACameraActor>(CA);
-		SetViewTargetWithBlend(CameraActor, -1.0f, EViewTargetBlendFunction::VTBlend_Cubic);
-	}
 }
 
 void AHexCardController::OnRep_PlayerState()
 {
+	if (HasAuthority()) return;	//纯本地事件
+	
+	//设置场景摄像机，旋转第二个玩家的本地摄像机
+	if (AActor* CA  = UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass()))
+	{
+		CameraActor = Cast<ACameraActor>(CA);
+	}
 	if (PlayerState -> GetPlayerId() == 1 && IsLocalController() && CameraActor)
 	{
 		CameraActor -> AddActorWorldRotation(FRotator(0.0f, 180.0f , 0.0f));
 	}
-	Super::OnRep_PlayerState();	//旋转第二个玩家的本地摄像机
+	SetViewTargetWithBlend(CameraActor, 0.0f, EViewTargetBlendFunction::VTBlend_Linear);
+	Super::OnRep_PlayerState();	
 }
 
 void AHexCardController::SelectCard()

@@ -17,6 +17,10 @@ UEffectInterpreter* EffectInterpreter是效果解释器。一切抽牌等游戏�
 RequestDrawCard(）是由客户端调用的函数。
  */
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCardStateChangeEvent, const FCardStateChangeEvent&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPhaseChangeEvent, const FCardStateChangeEvent&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTurnChangeEvent, const FCardStateChangeEvent&);
+
+class AHexCardController;
 
 UCLASS()
 class HEXCARDGAME_API AHexCardState : public AGameStateBase
@@ -49,7 +53,7 @@ public:
 	UFUNCTION()
 	static FCardState GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez);
 	
-	//***************************************回合模块***********************************************
+	//*************************************游戏进程模块*********************************************
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated)
 	int TurnNumber = 0;
 
@@ -58,6 +62,18 @@ public:
 
 	UFUNCTION()
 	void OnRep_CurrentTurnPlayerID();
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing=OnRep_CurrentGamePhase)
+	EGamePhase GamePhase  = EGamePhase::PreGameAwait;
+
+	UFUNCTION()
+	void OnRep_CurrentGamePhase();
+
+	UFUNCTION()
+	void AdvancedGamePhase();
+
+	UFUNCTION()
+	void AppendDeck(AHexCardController* OwnerPlayer);
 	
 	//***************************************操作模块***********************************************	
 	UFUNCTION(BlueprintCallable, Server, Reliable)

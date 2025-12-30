@@ -16,12 +16,17 @@ class HEXCARDGAME_API AHexCardController : public APlayerController
 
 public:
 
+	AHexCardController();
+	
 	virtual void BeginPlay() override;
 
 	virtual void OnRep_PlayerState() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UDataTable* CardLibrary;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FCardState> OwningDeck;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UVisualManager* VisualManager;
@@ -31,7 +36,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	ACameraActor* CameraActor;
-
+	
 	//**************************输入操作*****************************
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
