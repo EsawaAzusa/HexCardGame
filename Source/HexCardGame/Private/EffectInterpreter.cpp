@@ -145,14 +145,14 @@ void UEffectInterpreter::ExecuteChangePhase(const FAnyEffect& HandleEffect, cons
 		Effect.Payload = NewObject<UDrawPayload>(this);
 		Cast<UDrawPayload>(Effect.Payload) -> Count = 5; 
 		PushEffect(Effect);
-/*
+		//把这里注释掉可以正常抽卡，但是加上这一块就生成不了了？
 		FAnyEffect Effect_2;
 		Effect_2.EffectQueueId = ++OwnerHexCardState -> GlobalStateChangeSequenceID; 
 		Effect_2.EffectType = EEffectType::ChangeTurn; 
 		Effect_2.SourcePlayerID = 0; 
 		Effect_2.Payload = NewObject<UChangeTurnPayload>(this);
 		PushEffect(Effect_2);
-*/		
+		//		
 	}
 	
 	OwnerHexCardState -> GamePhase = Payload -> GamePhase;
