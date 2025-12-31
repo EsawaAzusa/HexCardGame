@@ -16,7 +16,7 @@ void AHexCardModel::Tick(float DeltaSeconds)
 		const FVector Current = GetActorLocation();
 
 		const FVector NewLocation =
-			FMath::VInterpTo(Current, TargetLocation, DeltaSeconds, 10.f);
+			FMath::VInterpTo(Current, TargetLocation, DeltaSeconds, 15.f);
 		SetActorLocation(NewLocation);
 	}
 }

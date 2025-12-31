@@ -209,7 +209,7 @@ void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 	if (!CardModel) return;
 
 	//生成位置（仅供测试，假设为P0控制）
-	FVector Location = FVector(-1000.f, 800.f, 1000.f);
+	FVector Location = CardState.OwnerPlayerID  ?  FVector(1000.f, -800.f, 1000.f) : FVector(-1000.f, 800.f, 1000.f) ;
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(Location);
 	SpawnTransform.SetRotation(FQuat::Identity);

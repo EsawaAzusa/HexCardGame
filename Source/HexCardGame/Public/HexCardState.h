@@ -55,7 +55,7 @@ public:
 	int TurnNumber = 0;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, ReplicatedUsing=OnRep_CurrentTurnPlayerID)
-	int CurrentTurnPlayerID = 0;
+	int CurrentTurnPlayerID = -1;
 
 	UFUNCTION()
 	void OnRep_CurrentTurnPlayerID();

@@ -54,7 +54,13 @@ public:
 	void SelectHex();
 
 	UFUNCTION(Server, Reliable)
-	void ClientReady()
+	void ClientReady();
+
+	UPROPERTY()
+	bool bIsReady = false;
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void RequestChangeTurn();
 	
 	UFUNCTION(Server, Reliable)
 	void RequestPlayCard(int CardInstanceID, int HexQ, int HexR);

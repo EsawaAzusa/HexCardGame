@@ -11,8 +11,6 @@ AHexCardController::AHexCardController()
 void AHexCardController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetViewTarget(nullptr);
 	
 	//设置HexCardState
 	AGameStateBase* GameState = GetWorld()->GetGameState();
@@ -32,8 +30,11 @@ void AHexCardController::Tick(float DeltaSeconds)
 
 	if(HasAuthority()) return;
 
-	if (HexCardState && VisualManager && CameraActor)
-		
+	if (HexCardState && VisualManager && CameraActor && !bIsReady)
+	{
+		ClientReady();
+		bIsReady = true;
+	}
 }
 
 void AHexCardController::OnRep_PlayerState()
@@ -44,12 +45,12 @@ void AHexCardController::OnRep_PlayerState()
 	if (AActor* CA  = UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass()))
 	{
 		CameraActor = Cast<ACameraActor>(CA);
+		SetViewTarget(CameraActor);
 	}
 	if (PlayerState -> GetPlayerId() == 1 && IsLocalController() && CameraActor)
 	{
 		CameraActor -> AddActorWorldRotation(FRotator(0.0f, 180.0f , 0.0f));
 	}
-	SetViewTarget(CameraActor);
 	Super::OnRep_PlayerState();	
 }
 
@@ -89,6 +90,11 @@ void AHexCardController::ClientReady_Implementation()
 {
 	HexCardState -> ReadyClient ++;
 	HexCardState -> AdvancedGamePhase();
+}
+
+void AHexCardController::RequestChangeTurn_Implementation()
+{
+	HexCardState -> RequestChangeTurn(PlayerState->GetPlayerId());
 }
 
 void AHexCardController::RequestPlayCard_Implementation( int CardInstanceID, int HexQ, int HexR)
