@@ -11,6 +11,8 @@ AHexCardController::AHexCardController()
 void AHexCardController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetViewTarget(nullptr);
 	
 	//设置HexCardState
 	AGameStateBase* GameState = GetWorld()->GetGameState();
@@ -22,6 +24,16 @@ void AHexCardController::BeginPlay()
 	VisualManager->RegisterComponent();
 	VisualManager->Initialize(HexCardState);
 	HexCardState->OnCardStateChangeEvent.AddUObject(VisualManager, &UVisualManager::OnCardStateChangeEvent);
+}
+
+void AHexCardController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if(HasAuthority()) return;
+
+	if (HexCardState && VisualManager && CameraActor)
+		
 }
 
 void AHexCardController::OnRep_PlayerState()
@@ -37,7 +49,7 @@ void AHexCardController::OnRep_PlayerState()
 	{
 		CameraActor -> AddActorWorldRotation(FRotator(0.0f, 180.0f , 0.0f));
 	}
-	SetViewTargetWithBlend(CameraActor, 0.0f, EViewTargetBlendFunction::VTBlend_Linear);
+	SetViewTarget(CameraActor);
 	Super::OnRep_PlayerState();	
 }
 
@@ -71,6 +83,12 @@ void AHexCardController::SelectHex()
 		CardModel = nullptr;
 		HexModel = nullptr;
 	}
+}
+
+void AHexCardController::ClientReady_Implementation()
+{
+	HexCardState -> ReadyClient ++;
+	HexCardState -> AdvancedGamePhase();
 }
 
 void AHexCardController::RequestPlayCard_Implementation( int CardInstanceID, int HexQ, int HexR)

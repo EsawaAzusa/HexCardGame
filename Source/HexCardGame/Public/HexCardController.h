@@ -20,6 +20,8 @@ public:
 	
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual void OnRep_PlayerState() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -51,6 +53,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SelectHex();
 
+	UFUNCTION(Server, Reliable)
+	void ClientReady()
+	
 	UFUNCTION(Server, Reliable)
 	void RequestPlayCard(int CardInstanceID, int HexQ, int HexR);
 };

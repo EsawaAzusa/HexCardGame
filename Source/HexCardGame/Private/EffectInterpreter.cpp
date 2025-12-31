@@ -112,14 +112,31 @@ void UEffectInterpreter::ExecuteDraw(const FAnyEffect& HandleEffect, const UDraw
 void UEffectInterpreter::ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload)
 {
 	if (!OwnerHexCardState) return;
+
+	FAnyEffect Effect;
+	Effect.EffectQueueId = ++ OwnerHexCardState -> GlobalEffectQueueID; //回合手牌
+	Effect.EffectType = EEffectType::Draw; 
+	Effect.TargetPlayerIDs.Add( HandleEffect.SourcePlayerID ? 0 : 1);
+	Effect.Payload = NewObject<UDrawPayload>(this);
+	Cast<UDrawPayload>(Effect.Payload) -> Count = 2; 
+	PushEffect(Effect);
 	
-	OwnerHexCardState -> CurrentTurnPlayerID = HandleEffect.SourcePlayerID ? 0 : 1 ;
+	OwnerHexCardState -> CurrentTurnPlayerID = HandleEffect.SourcePlayerID ? 0 : 1;
 	OwnerHexCardState -> TurnNumber++;
 }
 
 void UEffectInterpreter::ExecuteChangePhase(const FAnyEffect& HandleEffect, const UChangePhasePayload* Payload)
 {
 	if (!OwnerHexCardState) return;
+
+	FAnyEffect Effect;
+	Effect.EffectQueueId = ++ OwnerHexCardState -> GlobalEffectQueueID; //起始手牌
+	Effect.EffectType = EEffectType::Draw; 
+	Effect.TargetPlayerIDs.Add(0);
+	Effect.TargetPlayerIDs.Add(1);
+	Effect.Payload = NewObject<UDrawPayload>(this);
+	Cast<UDrawPayload>(Effect.Payload) -> Count = 5; //设置payload内参数
+	PushEffect(Effect);
 	
 	OwnerHexCardState -> GamePhase = Payload -> GamePhase;
 }

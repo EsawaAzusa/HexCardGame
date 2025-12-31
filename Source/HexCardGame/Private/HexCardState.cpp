@@ -24,28 +24,11 @@ void AHexCardState::BeginPlay()
 	EffectInterpreter = NewObject<UEffectInterpreter>(this);
 	check(EffectInterpreter);
 	EffectInterpreter -> Initialize(this);
-	
 }
 
 void AHexCardState::CardStateChangeEventDispatch_Implementation(const FCardStateChangeEvent& Event)
 {
 	OnCardStateChangeEvent.Broadcast(Event); //广播通知Visual Manager
-}
-
-void AHexCardState::RequestDrawCard_Implementation(int PlayerID)
-{
-	//典型的Effect注入请求，可参考
-	
-	if (!EffectInterpreter) return; //没有解释器
-	
-	FAnyEffect Effect;
-	Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
-	Effect.EffectType = EEffectType::Draw; //效果类型
-	Effect.TargetPlayerIDs.Add(PlayerID);	//效果参数
-	Effect.Payload = NewObject<UDrawPayload>(EffectInterpreter);
-	Cast<UDrawPayload>(Effect.Payload) -> Count = 1; //设置payload内参数
-	
-	EffectInterpreter -> PushEffect(Effect);
 }
 
 FCardState AHexCardState::GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez)
@@ -109,7 +92,16 @@ void AHexCardState::AdvancedGamePhase()
 		}
 	case EGamePhase::GameStart:
 		{
-			break;
+			if (ReadyClient < 2) return;
+			if (!EffectInterpreter) return; //没有解释器
+			
+			FAnyEffect Effect;
+			Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
+			Effect.EffectType = EEffectType::ChangePhase; //效果类型
+			Effect.Payload = NewObject<UChangePhasePayload>(EffectInterpreter);
+			Cast<UChangePhasePayload>(Effect.Payload) -> GamePhase = EGamePhase::InGame; //设置payload内参数
+	
+			EffectInterpreter -> PushEffect(Effect);
 		}
 	case EGamePhase::InGame:
 		{

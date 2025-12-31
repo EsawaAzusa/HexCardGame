@@ -46,10 +46,7 @@ public:
 	
 	int32 GlobalStateChangeSequenceID = 0;
 	int32 GlobalEffectQueueID = 0;
-
-	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void RequestDrawCard(int PlayerID);
-
+	
 	UFUNCTION()
 	static FCardState GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez);
 	
@@ -71,6 +68,8 @@ public:
 
 	UFUNCTION()
 	void AdvancedGamePhase();
+
+	int ReadyClient = 0;
 
 	UFUNCTION()
 	void AppendDeck(AHexCardController* OwnerPlayer);
