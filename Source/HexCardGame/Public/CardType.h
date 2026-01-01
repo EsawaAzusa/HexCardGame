@@ -56,12 +56,17 @@ USTRUCT(BlueprintType)
 struct HEXCARDGAME_API FCardState
 {
 	GENERATED_BODY()
-
+	
+	bool IsValid()
+	{
+		return CardInstanceID != INT_MAX;
+	};
+	
 	UPROPERTY(EditAnywhere)
 	FName CardName = TEXT("NULL");
 	
 	UPROPERTY(EditAnywhere)
-	int CardInstanceID = -1;
+	int CardInstanceID = INT_MAX;
 	
 	UPROPERTY(EditAnywhere)
 	int OwnerPlayerID = -1;

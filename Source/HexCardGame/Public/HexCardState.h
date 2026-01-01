@@ -6,6 +6,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "CardType.h"
 #include "EffectInterpreter.h"
+#include "HexRuleChecker.h"
 #include "HexCardState.generated.h"
 
 /*
@@ -49,6 +50,12 @@ public:
 	
 	UFUNCTION()
 	static FCardState GetCardInstancebyID(int CardInstanceID, TArray<FCardState>& CardStatez);
+
+	UFUNCTION()
+	static FCardState GetCardInstancebyHex(int HexQ, int HexR, TArray<FCardState>& CardStatez);
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UHexRuleChecker* RuleChecker;
 	
 	//*************************************游戏进程模块*********************************************
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Replicated)

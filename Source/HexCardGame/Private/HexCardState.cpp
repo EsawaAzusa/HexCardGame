@@ -24,6 +24,11 @@ void AHexCardState::BeginPlay()
 	EffectInterpreter = NewObject<UEffectInterpreter>(this);
 	check(EffectInterpreter);
 	EffectInterpreter -> Initialize(this);
+
+	RuleChecker = NewObject<UHexRuleChecker>(this);
+	check(RuleChecker);
+	RuleChecker -> Initialize(this);
+	
 }
 
 void AHexCardState::CardStateChangeEventDispatch_Implementation(const FCardStateChangeEvent& Event)
@@ -36,6 +41,18 @@ FCardState AHexCardState::GetCardInstancebyID(int CardInstanceID, TArray<FCardSt
 	for (FCardState idx : CardStatez)
 	{
 		if (idx.CardInstanceID == CardInstanceID)
+		{
+			return idx;
+		}
+	};
+	return FCardState();
+}
+
+FCardState AHexCardState::GetCardInstancebyHex(int HexQ, int HexR, TArray<FCardState>& CardStatez)
+{
+	for (FCardState idx : CardStatez)
+	{
+		if (idx.CardLocation.HexQ == HexQ && idx.CardLocation.HexR == HexR) 
 		{
 			return idx;
 		}
@@ -130,7 +147,7 @@ void AHexCardState::RequestChangeTurn_Implementation(int PlayerID)
 	if (CurrentTurnPlayerID != PlayerID) return; //非法回合结束请求
 
 	FAnyEffect Effect;
-	Effect.EffectQueueId = ++GlobalStateChangeSequenceID; //注册效果唯一ID
+	Effect.EffectQueueId = ++ GlobalEffectQueueID; //注册效果唯一ID
 	Effect.EffectType = EEffectType::ChangeTurn; //效果类型
 	Effect.SourcePlayerID = PlayerID; //请求来源
 	Effect.Payload = NewObject<UChangeTurnPayload>(EffectInterpreter);
@@ -141,6 +158,7 @@ void AHexCardState::RequestChangeTurn_Implementation(int PlayerID)
 void AHexCardState::RequestPlayCard_Implementation(int playerID, int CardInstanceID, int HexQ, int HexR)
 {
 	if (!EffectInterpreter) return;
+	if (!RuleChecker -> PlayCardLegalCheck(playerID, CardInstanceID, HexQ, HexR)) return;	//合法性检验
 
 	if (GEngine)
 	{

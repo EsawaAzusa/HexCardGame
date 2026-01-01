@@ -21,21 +21,24 @@ void UVisualManager::Locate()
 	//分选模型，组建数组
 	for (AHexCardModel* idx : HexCardModels)
 	{
-		const FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
-		switch (Owner.CardLocation.Zone)
+		FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+		if (Owner.IsValid())
 		{
-		case ECardZone::Hand:
-			if (Owner.OwnerPlayerID == 0)
-				Hand_P0.Add(idx);
-			else
-				Hand_P1.Add(idx);
-			break;
-		case ECardZone::Board:
-			Board.Add(idx);
-			break;
-		default:
-			break;
-		}	
+			switch (Owner.CardLocation.Zone)
+			{
+			case ECardZone::Hand:
+				if (Owner.OwnerPlayerID == 0)
+					Hand_P0.Add(idx);
+				else
+					Hand_P1.Add(idx);
+				break;
+			case ECardZone::Board:
+				Board.Add(idx);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	//开始更新
 	UpdateHand_P0(Hand_P0);
@@ -197,7 +200,8 @@ void UVisualManager::OnTurnChanged(int NewTurnPlayerID)
 void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 {
 	//使用卡牌ID获取CardName
-	const FCardState CardState = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(Event.CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+	FCardState CardState = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(Event.CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+	if (!CardState.IsValid()) return;
 	const FName CardName = CardState.CardName;
 	
 	//获取Card模型结构体
