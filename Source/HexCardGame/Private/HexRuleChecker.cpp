@@ -133,29 +133,31 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 			FIntPoint(-1,0),
 			};
 	};
-	int compareitem = 1;
+	int compare = 1;
 	for (const FIntPoint& Direction : Directionz)
 	{
 		const int NeigborHexQ = HexQ + Direction.X;
 		const int NeigborHexR = HexR + Direction.Y;
 		FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(NeigborHexQ, NeigborHexR, OwnerHexCardState -> CardStates);
-		if (Find.IsValid() && Find.BasePowerA > CardState.BasePowerA && compareitem == 1)
+		if (Find.IsValid() && Find.BasePowerA > CardState.BasePowerA && compare == 1)
+		{
+			Blocked = true;
+			
+			break;
+		}
+		if (Find.IsValid() && Find.BasePowerB > CardState.BasePowerB && compare == 2)
 		{
 			Blocked = true;
 			break;
 		}
-		if (Find.IsValid() && Find.BasePowerB > CardState.BasePowerB && compareitem == 2)
+		if (Find.IsValid() && Find.BasePowerC > CardState.BasePowerC && compare == 3)
 		{
 			Blocked = true;
 			break;
 		}
-		if (Find.IsValid() && Find.BasePowerB > CardState.BasePowerB && compareitem == 3)
-		{
-			Blocked = true;
-			break;
-		}
-		compareitem++;
-	}
+		compare++;
+	};
+
 	if (Blocked) return false;
 
 	//你过关！

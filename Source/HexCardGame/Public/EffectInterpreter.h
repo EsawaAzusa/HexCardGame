@@ -69,6 +69,11 @@ UCLASS()
 class UPlayPayload : public UEffectPayload
 {
 	GENERATED_BODY()
+
+public:
+	
+	int HexQ = INT_MAX;
+	int HexR = INT_MAX;
 };
 
 // ***************** Attack Payload **************
@@ -138,6 +143,9 @@ public:
 
 	UFUNCTION()
 	void ExecuteDraw(const FAnyEffect& HandleEffect, const UDrawPayload* Payload);
+
+	UFUNCTION()
+	void ExecutePlay(const FAnyEffect& HandleEffect, const UPlayPayload* Payload);
 
 	UFUNCTION()
 	void ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload);

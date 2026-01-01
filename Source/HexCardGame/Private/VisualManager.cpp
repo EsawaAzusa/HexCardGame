@@ -160,6 +160,15 @@ void UVisualManager::HandleLocationEvent(const FCardStateChangeEvent& Event)
 		DemoDrawCard(Event);
 		return;
 	}
+	if(Event.StartCardLocation.Zone == ECardZone::Hand && Event.EndCardLocation.Zone == ECardZone::Board)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+				FString::Printf(TEXT(" 试图出一张牌 ")));
+		}
+		return;
+	}
 	//************************************************************************************************
 }
 

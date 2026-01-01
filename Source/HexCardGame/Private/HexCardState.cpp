@@ -175,6 +175,18 @@ void AHexCardState::RequestPlayCard_Implementation(int playerID, int CardInstanc
 			)
 		);
 	}
+
+	FAnyEffect Effect;
+	Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
+	Effect.EffectType = EEffectType::Play; //效果类型
+	Effect.SourcePlayerID = playerID;
+	Effect.TargetCardInstanceIDs.Add(CardInstanceID);
+	Effect.Payload = NewObject<UPlayPayload>(EffectInterpreter);
+	Cast<UPlayPayload>(Effect.Payload) -> HexQ = HexQ; //设置payload内参数
+	Cast<UPlayPayload>(Effect.Payload) -> HexR = HexR; //设置payload内参数
+	
+	EffectInterpreter -> PushEffect(Effect);
+	
 }
 
 void AHexCardState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

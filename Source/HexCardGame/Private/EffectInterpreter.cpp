@@ -49,7 +49,7 @@ void UEffectInterpreter::InterpreterEffect(const FAnyEffect& HandleEffect)
 	case EEffectType::Play:
 		{
 			const UPlayPayload* Payload = Cast<UPlayPayload>(HandleEffect.Payload);
-			//Play
+			ExecutePlay(HandleEffect, Payload);
 			break;
 		}
 	
@@ -107,6 +107,40 @@ void UEffectInterpreter::ExecuteDraw(const FAnyEffect& HandleEffect, const UDraw
 			OwnerHexCardState -> CardStateChangeEventDispatch(Event);
 		}
 	}
+}
+
+void UEffectInterpreter::ExecutePlay(const FAnyEffect& HandleEffect, const UPlayPayload* Payload)
+{
+	if (!OwnerHexCardState) return; //检测CardState和payload是否存在
+	if (!Payload) return;
+
+	FCardState* CardToPlay = nullptr;
+	for (FCardState& Card : OwnerHexCardState -> CardStates)
+	{
+		if (Card.CardInstanceID == HandleEffect.TargetCardInstanceIDs[0])
+		{
+			CardToPlay = &Card;
+			break;
+		}
+	}
+	
+	if (!CardToPlay) return; //不存在就跳出
+	
+	// 调整CardState状态
+	CardToPlay->CardLocation.Zone = ECardZone::Board;
+	CardToPlay->CardLocation.HexQ = Payload -> HexQ;
+	CardToPlay->CardLocation.HexR = Payload -> HexR;
+	
+	// 生成相应的的ChangeEvent
+	FCardStateChangeEvent Event;
+	Event.CardInstanceID = CardToPlay -> CardInstanceID;
+	Event.UpdateHint = ECardUpdate::Location;
+	Event.StartCardLocation.Zone = ECardZone::Hand;
+	Event.EndCardLocation.Zone = ECardZone::Board;
+
+	// 转发Event
+	Event.StateChangeEventSequenceID = ++OwnerHexCardState -> GlobalStateChangeSequenceID;
+	OwnerHexCardState -> CardStateChangeEventDispatch(Event);
 }
 
 void UEffectInterpreter::ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload)
