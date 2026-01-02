@@ -1,6 +1,7 @@
 #include "VisualManager.h"
 
 #include "HexCardController.h"
+#include "Kismet/GameplayStatics.h"
 
 UVisualManager::UVisualManager()
 {
@@ -88,13 +89,37 @@ void UVisualManager::UpdateHand_P1(TArray<AHexCardModel*> Hand)
 		{
 			Hand[idx] -> TargetLocation = Pos;
 			Hand[idx] -> MoveMode = EMoveMode::Interp;
+			Hand[idx]-> InterpSpeed = 15.f;
 		}
 	}
 }
 
 void UVisualManager::UpdateBoard(TArray<AHexCardModel*> Board)
 {
-	
+	for (AHexCardModel* CardModel : Board)
+	{
+		FCardState CardState = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(CardModel -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+		if (!CardState.IsValid()) continue;
+		const int HexQ = CardState.CardLocation.HexQ;
+		const int HexR= CardState.CardLocation.HexR;
+		
+		TArray<AActor*> HexGrids;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHexGrid::StaticClass(), HexGrids);
+		for (AActor* Actor : HexGrids)
+		{
+			AHexGrid* HexGrid = Cast<AHexGrid>(Actor); 
+			if (HexGrid)
+			{
+				if (HexGrid -> HexQ == HexQ && HexGrid -> HexR == HexR)
+				{
+					CardModel -> TargetLocation = HexGrid -> GetActorLocation() + FVector (0.f, 0.f, 10.f);
+					CardModel -> MoveMode = EMoveMode::Interp;
+					CardModel -> InterpSpeed = 30.f;
+					break;
+				}
+			}
+		}
+	}
 }
 
 void UVisualManager::Initialize(AHexCardState* InGameState)
@@ -162,11 +187,7 @@ void UVisualManager::HandleLocationEvent(const FCardStateChangeEvent& Event)
 	}
 	if(Event.StartCardLocation.Zone == ECardZone::Hand && Event.EndCardLocation.Zone == ECardZone::Board)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
-				FString::Printf(TEXT(" 试图出一张牌 ")));
-		}
+		DemoPlayCard(Event);
 		return;
 	}
 	//************************************************************************************************
@@ -237,5 +258,14 @@ void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 
 void UVisualManager::DemoPlayCard(const FCardStateChangeEvent& Event)
 {
-	
+	for (AHexCardModel* idx : HexCardModels)
+	{
+		FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+		if (Event.CardInstanceID == Owner.CardInstanceID)
+		{
+			idx -> CardMesh -> SetVisibility(false);
+			idx -> HexMesh -> SetVisibility(true);
+		}
+	}
+		EventFinishCallback(Event.StateChangeEventSequenceID);
 }

@@ -33,7 +33,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	EMoveMode MoveMode = EMoveMode::Fixed;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	float InterpSpeed = 10.f;
+
 	UFUNCTION()
 	void Initialize(int OwnerCardInstanceID);
 	
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* CardMesh;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* HexMesh; 
 };

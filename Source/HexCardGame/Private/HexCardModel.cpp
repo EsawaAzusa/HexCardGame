@@ -5,6 +5,13 @@
 AHexCardModel::AHexCardModel()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	CardMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CardMesh"));
+	CardMesh -> SetupAttachment(RootComponent);  
+	HexMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeXMesh"));
+	HexMesh -> SetupAttachment(RootComponent);
+	CardMesh -> SetVisibility(true);
+	HexMesh -> SetVisibility(false);
 }
 
 void AHexCardModel::Tick(float DeltaSeconds)
@@ -16,7 +23,7 @@ void AHexCardModel::Tick(float DeltaSeconds)
 		const FVector Current = GetActorLocation();
 
 		const FVector NewLocation =
-			FMath::VInterpTo(Current, TargetLocation, DeltaSeconds, 15.f);
+			FMath::VInterpTo(Current, TargetLocation, DeltaSeconds, InterpSpeed);
 		SetActorLocation(NewLocation);
 	}
 }
