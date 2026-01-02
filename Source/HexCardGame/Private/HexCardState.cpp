@@ -9,7 +9,6 @@
 RequestDrawCard展现了基本的解释器注入逻辑，生成空白Effect，先赋予EffectID，Effect类型，必要的参数值和Payload，EffectID全局自增确保唯一
  */
 
-
 AHexCardState::AHexCardState()
 {
 	SetReplicates(true);

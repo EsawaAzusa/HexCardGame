@@ -1,5 +1,4 @@
 #include "VisualManager.h"
-
 #include "HexCardController.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -127,7 +126,7 @@ void UVisualManager::UpdateBoard(TArray<AHexCardModel*> Board)
 				{
 					CardModel -> TargetLocation = HexGrid -> GetActorLocation() + FVector (0.f, 0.f, 10.f);
 					CardModel -> MoveMode = EMoveMode::Interp;
-					CardModel -> InterpSpeed = 30.f;
+					CardModel -> InterpSpeed = 18.f;
 					break;
 				}
 			}

@@ -1,9 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GameFramework/PlayerState.h"
 #include "HexCardMode.h"
-
 #include "HexCardController.h"
 
 void AHexCardMode::PostLogin(APlayerController* NewPlayer)

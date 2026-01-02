@@ -1,5 +1,5 @@
 #include "HexCardState.h"
-#include "..\Public\EffectInterpreter.h"
+#include "EffectInterpreter.h"
 
 void UEffectInterpreter::PushEffect(const FAnyEffect& AddedEffect)
 {
