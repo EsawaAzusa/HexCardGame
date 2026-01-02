@@ -25,7 +25,12 @@ void UVisualManager::Locate()
 	//分选模型，组建数组
 	for (AHexCardModel* idx : HexCardModels)
 	{
-		if (!GetOwner() || !Cast<AHexCardController>(GetOwner()) -> HexCardState) return;
+		if (!idx) return;
+		if (!GetOwner()) return;
+		if (!Cast<AHexCardController>(GetOwner())) return;
+		if (!Cast<AHexCardController>(GetOwner()) -> HexCardState) return;
+		if (Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates.IsEmpty()) return;	
+
 		FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
 		if (Owner.IsValid())
 		{
