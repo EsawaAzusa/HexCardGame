@@ -56,7 +56,7 @@ void UEffectInterpreter::InterpreterEffect(const FAnyEffect& HandleEffect)
 	case EEffectType::Attack:
 		{
 			const UAttackPayload* Payload = Cast<UAttackPayload>(HandleEffect.Payload);
-			//Attack
+			ExecuteAttack(HandleEffect, Payload);
 			break;
 		}
 		
@@ -141,6 +141,69 @@ void UEffectInterpreter::ExecutePlay(const FAnyEffect& HandleEffect, const UPlay
 	// 转发Event
 	Event.StateChangeEventSequenceID = ++OwnerHexCardState -> GlobalStateChangeSequenceID;
 	OwnerHexCardState -> CardStateChangeEventDispatch(Event);
+
+	TArray<FIntPoint> Directions =
+			{
+			FIntPoint(1, 0),
+			FIntPoint(-1, 0),
+			FIntPoint(0, 1),
+			FIntPoint(0, -1),
+			FIntPoint(-1, 1),
+			FIntPoint(1, -1)
+			} ;
+
+	for (const FIntPoint& Direction : Directions) //检测是否爆发战斗
+	{
+		const int NeigborHexQ =  Payload -> HexQ + Direction.X;
+		const int NeigborHexR =  Payload -> HexR + Direction.Y;
+		FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(NeigborHexQ, NeigborHexR, OwnerHexCardState -> CardStates);
+	
+		if (Find.IsValid() && Find.OwnerPlayerID != CardToPlay -> OwnerPlayerID)  
+		{
+			FAnyEffect Effect;
+			Effect.EffectQueueId = ++ OwnerHexCardState -> GlobalEffectQueueID;
+			Effect.EffectType = EEffectType::Attack; 
+			Effect.SourceCardInstanceID = CardToPlay ->  CardInstanceID;
+			Effect.TargetCardInstanceIDs.Add(Find.CardInstanceID);
+			Effect.Payload = NewObject<UAttackPayload>(this);
+			PushEffect(Effect);
+		}
+	}
+}
+
+void UEffectInterpreter::ExecuteAttack(const FAnyEffect& HandleEffect, const UAttackPayload* Payload)
+{
+	if (!OwnerHexCardState) return; //检测CardState和payload是否存在
+	if (!Payload) return;
+
+	FCardState* CardToAttack = nullptr;
+	for (FCardState& Card : OwnerHexCardState -> CardStates)
+	{
+		if (Card.CardInstanceID == HandleEffect.TargetCardInstanceIDs[0])
+		{
+			CardToAttack = &Card;
+			break;
+		}
+	}
+	
+	if (!CardToAttack) return; //不存在就跳出
+	
+	// 调整CardState状态
+	CardToAttack -> CardLocation.Zone = ECardZone::Graveyard;
+	CardToAttack -> CardLocation.HexQ = INT_MAX;
+	CardToAttack -> CardLocation.HexR = INT_MAX;
+	
+	// 生成相应的的ChangeEvent
+	FCardStateChangeEvent Event;
+	Event.CardInstanceID = CardToAttack -> CardInstanceID;
+	Event.UpdateHint = ECardUpdate::Location;
+	Event.StartCardLocation.Zone = ECardZone::Board;
+	Event.EndCardLocation.Zone = ECardZone::Graveyard;
+
+	// 转发Event
+	Event.StateChangeEventSequenceID = ++OwnerHexCardState -> GlobalStateChangeSequenceID;
+	OwnerHexCardState -> CardStateChangeEventDispatch(Event);
+	
 }
 
 void UEffectInterpreter::ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload)

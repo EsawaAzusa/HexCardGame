@@ -148,6 +148,9 @@ public:
 	void ExecutePlay(const FAnyEffect& HandleEffect, const UPlayPayload* Payload);
 
 	UFUNCTION()
+	void ExecuteAttack(const FAnyEffect& HandleEffect, const UAttackPayload* Payload);
+
+	UFUNCTION()
 	void ExecuteChangeTurn(const FAnyEffect& HandleEffect, const UChangeTurnPayload* Payload);
 
 	UFUNCTION()

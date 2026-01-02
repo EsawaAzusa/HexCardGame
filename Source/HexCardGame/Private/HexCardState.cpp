@@ -159,23 +159,7 @@ void AHexCardState::RequestPlayCard_Implementation(int playerID, int CardInstanc
 {
 	if (!EffectInterpreter) return;
 	if (!RuleChecker -> PlayCardLegalCheck(playerID, CardInstanceID, HexQ, HexR)) return;	//合法性检验
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			10.0f,
-			FColor::Green,
-			FString::Printf(
-				TEXT("RequestPlayCard received | CardID=%d | HexQ=%d | HexR=%d | Mode = %s"),
-				CardInstanceID,
-				HexQ,
-				HexR,
-				GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
-			)
-		);
-	}
-
+	
 	FAnyEffect Effect;
 	Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
 	Effect.EffectType = EEffectType::Play; //效果类型
@@ -186,7 +170,6 @@ void AHexCardState::RequestPlayCard_Implementation(int playerID, int CardInstanc
 	Cast<UPlayPayload>(Effect.Payload) -> HexR = HexR; //设置payload内参数
 	
 	EffectInterpreter -> PushEffect(Effect);
-	
 }
 
 void AHexCardState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const

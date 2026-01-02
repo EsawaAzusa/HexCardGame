@@ -81,5 +81,8 @@ public:
 
 	UFUNCTION()
 	void DemoPlayCard(const FCardStateChangeEvent& Event);
+
+	UFUNCTION()
+	void DemoRemoveCard(const FCardStateChangeEvent& Event);
 	
 };

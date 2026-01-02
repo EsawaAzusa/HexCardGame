@@ -65,7 +65,7 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 		const int NeigborHexQ = HexQ + Direction.X;
 		const int NeigborHexR = HexR + Direction.Y;
 		FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(NeigborHexQ, NeigborHexR, OwnerHexCardState -> CardStates);
-		if (Find.IsValid() && Find.OwnerPlayerID == CardState.OwnerPlayerID)
+		if (Find.IsValid() && Find.OwnerPlayerID == CardState.OwnerPlayerID && Find.CardLocation.Zone == ECardZone::Board)
 		{
 			FindFriend = true;
 			break;
@@ -95,13 +95,8 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 					const int AixalHexQ = jdx;
 					const int AixalHexR = (idx - jdx) / 2;
 					FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(AixalHexQ, AixalHexR, OwnerHexCardState -> CardStates);
-					if (Find.IsValid() && Find.OwnerPlayerID == 1)
+					if (Find.IsValid() && Find.OwnerPlayerID == 1 && Find.CardLocation.Zone == ECardZone::Board)
 					{
-						if (GEngine)
-						{
-							GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow,
-								FString::Printf(TEXT("%d, %d Enemied."), AixalHexQ, AixalHexR));
-						}
 						FindEnemy = true;
 						break;
 					}
@@ -120,13 +115,8 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 					const int AixalHexQ = jdx;
 					const int AixalHexR = (idx - jdx) / 2;
 					FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(AixalHexQ, AixalHexR, OwnerHexCardState -> CardStates);
-					if (Find.IsValid() && Find.OwnerPlayerID == 0)
+					if (Find.IsValid() && Find.OwnerPlayerID == 0 && Find.CardLocation.Zone == ECardZone::Board)
 					{
-						if (GEngine)
-						{
-							GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow,
-								FString::Printf(TEXT("%d, %d Enemied."), AixalHexQ, AixalHexR));
-						}
 						FindEnemy = true;
 						break;
 					}
@@ -171,18 +161,18 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 		const int NeigborHexQ = HexQ + Direction.X;
 		const int NeigborHexR = HexR + Direction.Y;
 		FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(NeigborHexQ, NeigborHexR, OwnerHexCardState -> CardStates);
-		if (Find.IsValid() && Find.BasePowerA > CardState.BasePowerA && compare == 1)
+		if (Find.IsValid() && Find.BasePowerA > CardState.BasePowerA && compare == 1 && Find.CardLocation.Zone == ECardZone::Board)
 		{
 			Blocked = true;
 			
 			break;
 		}
-		if (Find.IsValid() && Find.BasePowerB > CardState.BasePowerB && compare == 2)
+		if (Find.IsValid() && Find.BasePowerB > CardState.BasePowerB && compare == 2 && Find.CardLocation.Zone == ECardZone::Board)
 		{
 			Blocked = true;
 			break;
 		}
-		if (Find.IsValid() && Find.BasePowerC > CardState.BasePowerC && compare == 3)
+		if (Find.IsValid() && Find.BasePowerC > CardState.BasePowerC && compare == 3 && Find.CardLocation.Zone == ECardZone::Board)
 		{
 			Blocked = true;
 			break;

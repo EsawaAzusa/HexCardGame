@@ -19,9 +19,13 @@ void UVisualManager::Locate()
 	TArray<AHexCardModel*> Hand_P0;
 	TArray<AHexCardModel*> Hand_P1;
 	TArray<AHexCardModel*> Board;
+
+	if (HexCardModels.IsEmpty()) return;
+	
 	//分选模型，组建数组
 	for (AHexCardModel* idx : HexCardModels)
 	{
+		if (!GetOwner() || !Cast<AHexCardController>(GetOwner()) -> HexCardState) return;
 		FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
 		if (Owner.IsValid())
 		{
@@ -49,6 +53,7 @@ void UVisualManager::Locate()
 
 void UVisualManager::UpdateHand_P0(TArray<AHexCardModel*> Hand)
 {
+	if (Hand.IsEmpty()) return;
 	//临时美术设置
 	const FVector Start(-1000.f, -700.f, 1000.f);
 	const FVector End  (-1000.f,  700.f, 1000.f);
@@ -72,6 +77,7 @@ void UVisualManager::UpdateHand_P0(TArray<AHexCardModel*> Hand)
 
 void UVisualManager::UpdateHand_P1(TArray<AHexCardModel*> Hand)
 {
+	if (Hand.IsEmpty()) return;
 	//临时美术设置
 	const FVector Start(1000.f, 700.f, 1000.f);
 	const FVector End  (1000.f,  -700.f, 1100.f);
@@ -96,6 +102,8 @@ void UVisualManager::UpdateHand_P1(TArray<AHexCardModel*> Hand)
 
 void UVisualManager::UpdateBoard(TArray<AHexCardModel*> Board)
 {
+	if (Board.IsEmpty()) return;
+	
 	for (AHexCardModel* CardModel : Board)
 	{
 		FCardState CardState = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(CardModel -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
@@ -190,6 +198,11 @@ void UVisualManager::HandleLocationEvent(const FCardStateChangeEvent& Event)
 		DemoPlayCard(Event);
 		return;
 	}
+	if(Event.StartCardLocation.Zone == ECardZone::Board && Event.EndCardLocation.Zone == ECardZone::Graveyard)
+	{
+		DemoRemoveCard(Event);
+		return;
+	}
 	//************************************************************************************************
 }
 
@@ -244,9 +257,10 @@ void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 
 	//生成位置（仅供测试，假设为P0控制）
 	FVector Location = CardState.OwnerPlayerID  ?  FVector(1000.f, -800.f, 1000.f) : FVector(-1000.f, 800.f, 1000.f) ;
+	FRotator Rotation = CardState.OwnerPlayerID  ?  FRotator(0, 0.f, 0.f) : FRotator(0.f, 180.f, 0.f) ;
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(Location);
-	SpawnTransform.SetRotation(FQuat::Identity);
+	SpawnTransform.SetRotation(Rotation.Quaternion());
 	SpawnTransform.SetScale3D(FVector::OneVector);
 	
 	//生成Model，在Models数组中集中统一管理
@@ -265,7 +279,22 @@ void UVisualManager::DemoPlayCard(const FCardStateChangeEvent& Event)
 		{
 			idx -> CardMesh -> SetVisibility(false);
 			idx -> HexMesh -> SetVisibility(true);
+			break;
 		}
 	}
 		EventFinishCallback(Event.StateChangeEventSequenceID);
+}
+
+void UVisualManager::DemoRemoveCard(const FCardStateChangeEvent& Event)
+{
+	for (AHexCardModel* idx : HexCardModels)
+	{
+		FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
+		if (Event.CardInstanceID == Owner.CardInstanceID)
+		{
+			idx -> Destroy();
+			break;
+		}
+	}
+	EventFinishCallback(Event.StateChangeEventSequenceID);
 }
