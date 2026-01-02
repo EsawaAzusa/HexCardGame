@@ -71,46 +71,78 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 			break;
 		}
 	};
-	if (!FindFriend) return false;
+	if (!FindFriend)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+				FString::Printf(TEXT("No Friend.")));
+		}
+		return false;
+	}
 	
 	//6，
 	const int OffsetHexR = HexQ + 2 * HexR;
 	bool FindEnemy = false;
 	if (CardState.OwnerPlayerID == 0)
 	{
-		for (int jdx = -2; jdx < 2; jdx ++)
+		for (int jdx = -2; jdx <= 2; jdx ++)
 		{
-			for (int idx = OffsetHexR; idx > -6; idx--)
+			for (int idx = OffsetHexR; idx >= -6; idx--)
 			{
-				const int AixalHexQ = jdx;
-				const int AixalHexR = (idx - jdx)/2;
-				FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(AixalHexQ, AixalHexR, OwnerHexCardState -> CardStates);
-				if (Find.IsValid() && Find.OwnerPlayerID == 1)
+				if ((idx + jdx) % 2 == 0)
 				{
-					FindEnemy = true;
-					break;
+					const int AixalHexQ = jdx;
+					const int AixalHexR = (idx - jdx) / 2;
+					FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(AixalHexQ, AixalHexR, OwnerHexCardState -> CardStates);
+					if (Find.IsValid() && Find.OwnerPlayerID == 1)
+					{
+						if (GEngine)
+						{
+							GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow,
+								FString::Printf(TEXT("%d, %d Enemied."), AixalHexQ, AixalHexR));
+						}
+						FindEnemy = true;
+						break;
+					}
 				}
 			}
 		}
 	}
 	else if (CardState.OwnerPlayerID == 1)
 	{
-		for (int jdx = -2; jdx < 2; jdx ++)
+		for (int jdx = -2; jdx <= 2; jdx ++)
 		{
-			for (int idx = OffsetHexR; idx < 6; idx++)
+			for (int idx = OffsetHexR; idx <= 6; idx++)
 			{
-				const int AixalHexQ = jdx;
-				const int AixalHexR = (idx - jdx)/2;
-				FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(AixalHexQ, AixalHexR, OwnerHexCardState -> CardStates);
-				if (Find.IsValid() && Find.OwnerPlayerID == 0)
+				if ((idx + jdx) % 2 == 0)
 				{
-					FindEnemy = true;
-					break;
+					const int AixalHexQ = jdx;
+					const int AixalHexR = (idx - jdx) / 2;
+					FCardState Find = OwnerHexCardState -> GetCardInstancebyHex(AixalHexQ, AixalHexR, OwnerHexCardState -> CardStates);
+					if (Find.IsValid() && Find.OwnerPlayerID == 0)
+					{
+						if (GEngine)
+						{
+							GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow,
+								FString::Printf(TEXT("%d, %d Enemied."), AixalHexQ, AixalHexR));
+						}
+						FindEnemy = true;
+						break;
+					}
 				}
 			}
 		}
 	}
-	if (FindEnemy) return false;
+	if (FindEnemy)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+				FString::Printf(TEXT("Cross Enemy.")));
+		}
+		return false;
+	}
 
 	//7,
 	TArray<FIntPoint> Directionz;
@@ -158,7 +190,15 @@ bool UHexRuleChecker::PlayCardLegalCheck(int PlayerID, int CardInstanceID, int H
 		compare++;
 	};
 
-	if (Blocked) return false;
+	if (Blocked)
+	{
+		if (GEngine)
+		{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+			FString::Printf(TEXT("Blocked.")));
+		}
+		return false;
+	};
 
 	//你过关！
 	return true;
