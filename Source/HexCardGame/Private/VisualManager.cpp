@@ -285,7 +285,7 @@ void UVisualManager::DemoPlayCard(const FCardStateChangeEvent& Event)
 	for (AHexCardModel* idx : HexCardModels)
 	{
 		FCardState Owner = Cast<AHexCardController>(GetOwner()) -> HexCardState -> GetCardInstancebyID(idx -> CardInstanceID,Cast<AHexCardController>(GetOwner()) -> HexCardState -> CardStates);
-		if (Event.CardInstanceID == Owner.CardInstanceID)
+		if (Owner.IsValid() && Event.CardInstanceID == Owner.CardInstanceID)
 		{
 			idx -> CardMesh -> SetVisibility(false);
 			idx -> HexMesh -> SetVisibility(true);

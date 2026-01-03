@@ -90,7 +90,7 @@ void UEffectInterpreter::ExecuteDraw(const FAnyEffect& HandleEffect, const UDraw
 				}
 			}
 
-			if (!CardToDraw) continue; //不存在就跳出
+			if (!CardToDraw) OwnerHexCardState -> CheckWinner(); //不存在就跳出
 
 			// 调整CardState状态
 			CardToDraw->CardLocation.Zone = ECardZone::Hand;

@@ -77,6 +77,9 @@ public:
 	UFUNCTION()
 	void AdvancedGamePhase();
 
+	UFUNCTION()
+	void CheckWinner();
+
 	int ReadyClient = 0;
 
 	UFUNCTION()

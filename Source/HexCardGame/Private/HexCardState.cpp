@@ -112,14 +112,26 @@ void AHexCardState::AdvancedGamePhase()
 		}
 	case EGamePhase::InGame:
 		{
-			const TArray<FIntPoint> Nodes =
-				{
-				FIntPoint(0,2),
-				FIntPoint(0,0),
-				FIntPoint(0,-2),
-				};
-			
-			if (TurnNumber == 5)	//回合数满
+			CheckWinner();
+			break;
+		}
+	case EGamePhase::GameEnd:
+		{
+			break;
+		}
+	}
+}
+
+void AHexCardState::CheckWinner()
+{
+	const TArray<FIntPoint> Nodes =
+		{
+		FIntPoint(0,2),
+		FIntPoint(0,0),
+		FIntPoint(0,-2),
+		};
+		
+			if (TurnNumber == 40)	//回合数满
 			{
 				int CaptureP0 = 0;
 				int CaptureP1 = 0;
@@ -209,13 +221,6 @@ void AHexCardState::AdvancedGamePhase()
 					EffectInterpreter -> PushEffect(Effect);
 				}
 			}
-			break;
-		}
-	case EGamePhase::GameEnd:
-		{
-			break;
-		}
-	}
 }
 
 void AHexCardState::AppendDeck(AHexCardController* OwnerPlayer)
