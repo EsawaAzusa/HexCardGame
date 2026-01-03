@@ -29,6 +29,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FCardState> OwningDeck;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UVisualManager> VisualManagerClass;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UVisualManager* VisualManager;

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HexCardModel.h"
 #include "CardType.generated.h"
+
+class AHexCardModel;
 
 /*
 ECardZone : 卡牌区域

@@ -149,6 +149,16 @@ void UVisualManager::OnCardStateChangeEvent(const FCardStateChangeEvent& NewEven
 	}
 }
 
+void UVisualManager::OnTurnChangeEvent_Implementation(int NewTurnPlayerID, int TurnNumber)
+{
+	
+}
+
+void UVisualManager::OnPhaseChangeEvent_Implementation(EGamePhase)
+{
+	
+}
+
 void UVisualManager::SortBySequenceID(TArray<FCardStateChangeEvent>& Events)
 {
 		Algo::Sort(Events, [](const FCardStateChangeEvent& A, const FCardStateChangeEvent& B){return A.StateChangeEventSequenceID < B.StateChangeEventSequenceID;});
@@ -239,11 +249,6 @@ void UVisualManager::EventFinishCallback(int32 SequenceID)
 	ProcessNextEvent();
 }
 
-void UVisualManager::OnTurnChanged(int NewTurnPlayerID)
-{
-	return;
-}
-
 void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 {
 	//使用卡牌ID获取CardName
@@ -270,6 +275,7 @@ void UVisualManager::DemoDrawCard(const FCardStateChangeEvent& Event)
 	//生成Model，在Models数组中集中统一管理
 	AHexCardModel* NewCardModel = GetWorld() -> SpawnActor<AHexCardModel>(CardModel, SpawnTransform);
 	NewCardModel -> Initialize(Event.CardInstanceID);
+	NewCardModel -> RefreshAttr();
 	HexCardModels.Add(NewCardModel);
 	EventFinishCallback(Event.StateChangeEventSequenceID);
 }

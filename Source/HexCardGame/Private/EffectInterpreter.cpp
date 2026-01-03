@@ -226,6 +226,7 @@ void UEffectInterpreter::ExecuteChangeTurn(const FAnyEffect& HandleEffect, const
 	}
 	
 	OwnerHexCardState -> TurnNumber++;
+	OwnerHexCardState -> AdvancedGamePhase();
 }
 
 void UEffectInterpreter::ExecuteChangePhase(const FAnyEffect& HandleEffect, const UChangePhasePayload* Payload)
@@ -242,14 +243,13 @@ void UEffectInterpreter::ExecuteChangePhase(const FAnyEffect& HandleEffect, cons
 		Effect.Payload = NewObject<UDrawPayload>(this);
 		Cast<UDrawPayload>(Effect.Payload) -> Count = 5; 
 		PushEffect(Effect);
-		//把这里注释掉可以正常抽卡，但是加上这一块就生成不了了？
+
 		FAnyEffect Effect_2;
 		Effect_2.EffectQueueId = ++OwnerHexCardState ->  GlobalEffectQueueID; 
 		Effect_2.EffectType = EEffectType::ChangeTurn; 
 		Effect_2.SourcePlayerID = 0; 
 		Effect_2.Payload = NewObject<UChangeTurnPayload>(this);
 		PushEffect(Effect_2);
-		//	以上代码阻碍了抽卡效果层的表现？	
 	}
 	
 	OwnerHexCardState -> GamePhase = Payload -> GamePhase;

@@ -18,10 +18,12 @@ void AHexCardController::BeginPlay()
 	HexCardState = Cast<AHexCardState>(GameState);
 	
 	//设置VisualManager
-	VisualManager = NewObject<UVisualManager>(this);
+	VisualManager = NewObject<UVisualManager>(this, VisualManagerClass);
 	VisualManager->RegisterComponent();
 	VisualManager->Initialize(HexCardState);
 	HexCardState->OnCardStateChangeEvent.AddUObject(VisualManager, &UVisualManager::OnCardStateChangeEvent);
+	HexCardState->OnTurnChangeEvent.AddUObject(VisualManager, &UVisualManager::OnTurnChangeEvent);
+	HexCardState->OnPhaseChangeEvent.AddUObject(VisualManager, &UVisualManager::OnPhaseChangeEvent);
 }
 
 void AHexCardController::Tick(float DeltaSeconds)

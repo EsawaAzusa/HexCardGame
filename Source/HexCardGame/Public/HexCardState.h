@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,9 +15,10 @@ UEffectInterpreter* EffectInterpreter是效果解释器。一切抽牌等游戏�
 不经过解释器修改CardStates是非法的！！！
 RequestDrawCard(）是由客户端调用的函数。
  */
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCardStateChangeEvent, const FCardStateChangeEvent&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPhaseChangeEvent, const FCardStateChangeEvent&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnTurnChangeEvent, const FCardStateChangeEvent&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnTurnChangeEvent, const int, const int);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPhaseChangeEvent, const EGamePhase);
 
 class AHexCardController;
 
@@ -38,6 +37,8 @@ public:
 	TArray<FCardState> CardStates; 
 
 	FOnCardStateChangeEvent OnCardStateChangeEvent; //客户端Visual Manager订阅
+	FOnTurnChangeEvent OnTurnChangeEvent;
+	FOnPhaseChangeEvent OnPhaseChangeEvent;
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void CardStateChangeEventDispatch(const FCardStateChangeEvent& Event);

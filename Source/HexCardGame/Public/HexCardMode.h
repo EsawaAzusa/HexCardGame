@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "HexCardState.h"
+#include "HexCardController.h"
 #include "HexCardMode.generated.h"
 
 /*

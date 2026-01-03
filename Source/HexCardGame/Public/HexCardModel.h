@@ -38,6 +38,15 @@ public:
 
 	UFUNCTION()
 	void Initialize(int OwnerCardInstanceID);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void RefreshAttr();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	void BreakCardState
+	(FName& OutCardName, int& OutCardInstanceID, int& OutOwnerPlayerID,
+	int& OutBasePowerA, int& OutBasePowerB, int& OutBasePowerC, int& OutBaseRange,
+	FCardLocation& OutCardLocation, TArray<ECardBuff>& OutCardBuffs) const;
 	
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* CardMesh;

@@ -1,5 +1,7 @@
 #include "HexCardModel.h"
+#include "HexCardState.h"
 #include "CardType.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AHexCardModel::AHexCardModel()
@@ -33,3 +35,27 @@ void AHexCardModel::Initialize(int OwnerCardInstanceID)
 	CardInstanceID = OwnerCardInstanceID;
 }
 
+void AHexCardModel::BreakCardState(FName& OutCardName, int& OutCardInstanceID, int& OutOwnerPlayerID,
+	int& OutBasePowerA, int& OutBasePowerB, int& OutBasePowerC, int& OutBaseRange, FCardLocation& OutCardLocation,
+	TArray<ECardBuff>& OutCardBuffs) const
+{
+	AHexCardState* HexCardState = Cast<AHexCardState>(UGameplayStatics::GetGameState(GetWorld()));
+	FCardState OwnerCard = HexCardState -> GetCardInstancebyID(CardInstanceID, HexCardState -> CardStates);
+	if (OwnerCard.IsValid())
+	{
+		OutCardName = OwnerCard.CardName;
+		OutCardInstanceID = OwnerCard.CardInstanceID;
+		OutOwnerPlayerID = OwnerCard.OwnerPlayerID;
+		OutBasePowerA = OwnerCard.BasePowerA;
+		OutBasePowerB = OwnerCard.BasePowerB;
+		OutBasePowerC =OwnerCard.BasePowerC;
+		OutBaseRange = OwnerCard.BaseRange;
+		OutCardLocation = OwnerCard.CardLocation;
+		OutCardBuffs = OwnerCard.CardBuffs;
+	}
+}
+
+void AHexCardModel::RefreshAttr_Implementation()
+{
+	
+}

@@ -61,22 +61,12 @@ FCardState AHexCardState::GetCardInstancebyHex(int HexQ, int HexR, TArray<FCardS
 
 void AHexCardState::OnRep_CurrentTurnPlayerID()
 {
-	//在Visual层表现进入下一个回合
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
-			FString::Printf(TEXT("Player %d Turn Start."), CurrentTurnPlayerID));
-	}
+	OnTurnChangeEvent.Broadcast(CurrentTurnPlayerID, TurnNumber); //广播通知Visual Manager
 }
 
 void AHexCardState::OnRep_CurrentGamePhase()
 {
-	//在Visual层表现进入下一个阶段
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
-			FString::Printf(TEXT(" %s  Start."),*UEnum::GetValueAsString(GamePhase)));
-	}
+	OnPhaseChangeEvent.Broadcast(GamePhase); //广播通知Visual Manager
 }
 
 void AHexCardState::AdvancedGamePhase()
@@ -118,9 +108,107 @@ void AHexCardState::AdvancedGamePhase()
 			Cast<UChangePhasePayload>(Effect.Payload) -> GamePhase = EGamePhase::InGame; //设置payload内参数
 	
 			EffectInterpreter -> PushEffect(Effect);
+			break;
 		}
 	case EGamePhase::InGame:
 		{
+			const TArray<FIntPoint> Nodes =
+				{
+				FIntPoint(0,2),
+				FIntPoint(0,0),
+				FIntPoint(0,-2),
+				};
+			
+			if (TurnNumber == 5)	//回合数满
+			{
+				int CaptureP0 = 0;
+				int CaptureP1 = 0;
+
+				for (FIntPoint Node : Nodes)
+				{
+					FCardState Find = GetCardInstancebyHex(Node.X, Node.Y, CardStates);
+					if (Find.IsValid())
+					{
+						Find.OwnerPlayerID ? CaptureP1 ++ : CaptureP0 ++;
+					}
+				}
+				if (CaptureP0 > CaptureP1)
+				{
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+							FString::Printf(TEXT(" Player 0 Win!")));
+					}
+				}
+				else if(CaptureP0 < CaptureP1)
+				{
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+							FString::Printf(TEXT(" Player 1 Win!")));
+					}
+				}
+				else
+				{
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+							FString::Printf(TEXT(" Draw Game!")));
+					}
+				}
+				FAnyEffect Effect;
+				Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
+				Effect.EffectType = EEffectType::ChangePhase; //效果类型
+				Effect.Payload = NewObject<UChangePhasePayload>(EffectInterpreter);
+				Cast<UChangePhasePayload>(Effect.Payload) -> GamePhase = EGamePhase::GameEnd; //设置payload内参数
+	
+				EffectInterpreter -> PushEffect(Effect);
+			}
+			else
+			{
+				int CaptureP0 = 0;
+				int CaptureP1 = 0;
+
+				for (FIntPoint Node : Nodes)
+				{
+					FCardState Find = GetCardInstancebyHex(Node.X, Node.Y, CardStates);
+					if (Find.IsValid())
+					{
+						Find.OwnerPlayerID ? CaptureP1 ++ : CaptureP0 ++;
+					}
+				}
+				
+				if (CurrentTurnPlayerID == 0 && CaptureP0 == 3)
+				{
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+							FString::Printf(TEXT(" Player 0 Win!")));
+					}
+					FAnyEffect Effect;
+					Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
+					Effect.EffectType = EEffectType::ChangePhase; //效果类型
+					Effect.Payload = NewObject<UChangePhasePayload>(EffectInterpreter);
+					Cast<UChangePhasePayload>(Effect.Payload) -> GamePhase = EGamePhase::GameEnd; //设置payload内参数
+	
+					EffectInterpreter -> PushEffect(Effect);
+				}
+				if (CurrentTurnPlayerID == 1 && CaptureP1 == 3)
+				{
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow,
+							FString::Printf(TEXT(" Player 1 Win!")));
+					}
+					FAnyEffect Effect;
+					Effect.EffectQueueId = ++GlobalEffectQueueID; //注册效果唯一ID
+					Effect.EffectType = EEffectType::ChangePhase; //效果类型
+					Effect.Payload = NewObject<UChangePhasePayload>(EffectInterpreter);
+					Cast<UChangePhasePayload>(Effect.Payload) -> GamePhase = EGamePhase::GameEnd; //设置payload内参数
+	
+					EffectInterpreter -> PushEffect(Effect);
+				}
+			}
 			break;
 		}
 	case EGamePhase::GameEnd:

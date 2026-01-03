@@ -14,7 +14,7 @@ class HEXCARDGAME_API AHexGrid : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AHexGrid();
-
+	
 	UPROPERTY(EditAnywhere)
 	int HexQ;
 	UPROPERTY(EditAnywhere)

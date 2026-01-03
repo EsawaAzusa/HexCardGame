@@ -2,11 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "CardType.h"
+#include "HexCardModel.h"
+#include "HexCardState.h"
 #include "Components/ActorComponent.h"
 #include "VisualManager.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable)
 class HEXCARDGAME_API UVisualManager : public UActorComponent
 {
 	GENERATED_BODY()
@@ -52,6 +54,12 @@ public:
 	UFUNCTION()
 	void OnCardStateChangeEvent(const FCardStateChangeEvent& NewEvent);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnTurnChangeEvent(int NewTurnPlayerID, int TurnNumber);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnPhaseChangeEvent(EGamePhase GamePhase);
+	
 	UFUNCTION()
 	static void SortBySequenceID(TArray<FCardStateChangeEvent>& Events);
 
@@ -72,10 +80,7 @@ public:
 	
 	UFUNCTION()
 	void EventFinishCallback(int32 SequenceID);
-
-	UFUNCTION()
-	void OnTurnChanged(int NewTurnPlayerID);
-
+	
 	UFUNCTION()
 	void DemoDrawCard(const FCardStateChangeEvent& Event);
 
